@@ -1,3 +1,14 @@
+// ============================================
+// enquiries API Route
+// --------------------------------------------
+// This file defines the HTTP endpoints for /api/enquiries.
+// Next.js automatically maps this file to that URL.
+//
+// Each exported function (GET, POST, etc.) represents
+// a supported HTTP method for this route.
+// The functions call the controller layer for actual logic.
+// ============================================
+
 export const runtime = "nodejs";
 
 import {NextResponse} from "next/server";
