@@ -21,7 +21,7 @@
   "homepage": "https://github.com/Justin0526/FSDP_Ignition_Team22#readme",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^4.21.2"
   },
   "devDependencies": {
