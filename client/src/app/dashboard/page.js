@@ -1,5 +1,5 @@
-import DashboardHeader from "@/components/DashboardHeader";
-import EnquiriesTable from "@/components/EnquiriesTable";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import EnquiriesTable from "@/components/dashboard/EnquiriesTable";
 
 export default function Dashboard() {
   return (
