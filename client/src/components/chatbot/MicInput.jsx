@@ -4,7 +4,7 @@ import { Mic, MicOff } from "lucide-react";
 
 export default function MicInput({ onResult }) {
     const [listening, setListening] = useState(false);
-    const recognitionRef = useRef(null); // ✅ Use useRef to persist across renders
+    const recognitionRef = useRef(null); // Using useRef to persist across renders - i think its better than losing state
 
     const startListening = () => {
         if (!("webkitSpeechRecognition" in window)) {
