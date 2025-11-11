@@ -22,3 +22,12 @@ export async function list(){
 
     return data;
 }
+
+export async function getAllCategories(){
+    const {data, error} = await supabase
+      .from("enquiry_categories")
+      .select("*")
+
+    if (error) throw error;
+    return data;
+}

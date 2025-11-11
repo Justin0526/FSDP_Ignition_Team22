@@ -16,3 +16,7 @@ import * as svc from "@/core/services/enquiries.service";
 export async function index(){
     return svc.getAll();
 }
+
+export async function getAllCategories(){
+    return svc.getAllCategories();
+}

@@ -2,51 +2,67 @@
 import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 
-// Helper to get current date in format "Month DD"
 function getCurrentDate() {
-  const now = new Date();
-  return now.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-  });
+  return new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" });
 }
-
-// Centered date pill component
 function DatePill({ text }) {
   return (
     <div className="flex justify-center my-2">
-      <span className="text-gray-500 text-xs bg-white/70 px-3 py-1 rounded-full border">
-        {text}
-      </span>
+      <span className="text-black text-xs bg-white/70 px-3 py-1 rounded-full border">{text}</span>
+    </div>
+  );
+}
+
+// Buttons block
+function Options({ options = [], onChoose }) {
+  return (
+    <div className="flex flex-col gap-2 w-full max-w-[82%]">
+      {options.map((opt, i) => (
+        <button
+          key={i}
+          onClick={() => onChoose(opt)} // pass whole option (id + label)
+          className="
+            w-full text-left border rounded-lg px-3 py-2 
+            bg-white text-black 
+            hover:bg-rose-500 hover:text-white 
+            transition-colors duration-200
+          "
+          title={opt.desc || opt.label}
+        >
+          {opt.label}
+        </button>
+      ))}
     </div>
   );
 }
 
 // Main chat message list
-export default function MessageList({ messages }) {
+export default function MessageList({ messages = [], onChoose }) {
   const ref = useRef(null);
 
-  // Auto-scroll down when new messages appear
   useEffect(() => {
-    ref.current?.scrollTo({
-      top: ref.current.scrollHeight,
-      behavior: "smooth",
-    });
+    if (!ref.current) return;
+    ref.current.scrollTo({ top: ref.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
   return (
     <div ref={ref} className="space-y-2 max-h-[60vh] overflow-y-auto px-1">
-      {/* Automatically show today's date */}
       <DatePill text={getCurrentDate()} />
 
-      {messages.map((m, i) => (
-        <div
-          key={i}
-          className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}
-        >
-          <MessageBubble from={m.from}>{m.text}</MessageBubble>
-        </div>
-      ))}
+      {messages.map((m, i) => {
+        if (m.type === "options") {
+          return (
+            <div key={i} className="flex justify-start">
+              <Options options={m.options} onChoose={onChoose} />
+            </div>
+          );
+        }
+        return (
+          <div key={i} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+            <MessageBubble from={m.from}>{m.text}</MessageBubble>
+          </div>
+        );
+      })}
     </div>
   );
 }
