@@ -2,7 +2,7 @@
 // This tells Next.js that this component should run on the client side
 
 import { useEffect, useState } from "react";
-import Stopwatch from "@/components/Stopwatch";
+import Stopwatch from "@/components/dashboard/Stopwatch";
 
 export default function DashboardHeader({activeCustomerId}){
     // Local state to hold staff info and loading state
