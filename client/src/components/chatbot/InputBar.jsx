@@ -1,5 +1,11 @@
 // Slim iOS-like footer bar
+import MicInput from "./MicInput";
+
 export default function InputBar({ value, onChange, onSubmit, disabled }) {
+  function handleSpeechResult(transcript) {
+    onChange(transcript);
+  }
+
   return (
     <form
       onSubmit={(e) => {
@@ -25,14 +31,7 @@ export default function InputBar({ value, onChange, onSubmit, disabled }) {
         disabled={disabled}
       />
 
-      <button
-        type="button"
-        className="p-2 rounded-full border bg-white"
-        title="Voice"
-        disabled={disabled}
-      >
-        🎤
-      </button>
+      <MicInput onResult={handleSpeechResult} />
 
       <button
         type="submit"

@@ -6,7 +6,7 @@ export default function StaffLoginHeader() {
         // Header container (sticks to the top with light border and shadow)
         <header className="bg-white border-b shadow-sm sticky top-0 z-50">
         <div className="w-full flex items-center justify-between px-8 py-3">
-            
+        
             {/* Left section: OCBC logo */}
             <div className="flex items-center">
             <img

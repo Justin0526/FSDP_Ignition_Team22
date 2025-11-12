@@ -1,6 +1,6 @@
 //start code here osmond time to lock in
-import LoginHeader from "@/components/LoginHeader";
-import LoginForm from "@/components/LoginForm";
+import LoginHeader from "@/components/dashboard/LoginHeader";
+import LoginForm from "@/components/dashboard/LoginForm";
 
 export default function StaffLoginPage() {
     return (
