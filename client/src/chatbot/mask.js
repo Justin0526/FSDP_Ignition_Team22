@@ -1,0 +1,1 @@
+export const maskLast4 = (last4) => `•••• •••• •••• ${String(last4).slice(-4)}`;
