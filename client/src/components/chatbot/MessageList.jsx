@@ -59,7 +59,7 @@ export default function MessageList({ messages = [], onChoose }) {
           );
         }
         else if (m.type === "summary"){
-           return (
+          return (
             <div key={i} className="flex justify-start">
               <SummaryCard
                 data={m.data}
@@ -72,7 +72,7 @@ export default function MessageList({ messages = [], onChoose }) {
         }
         return (
           <div key={i} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-            <MessageBubble from={m.from}>{m.text}</MessageBubble>
+            <MessageBubble from={m.from} qrvalue={m.qrvalue}>{m.text}</MessageBubble>
           </div>
         );
       })}

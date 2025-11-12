@@ -5,7 +5,10 @@ import MessageList from "./MessageList";
 import InputBar from "./InputBar";
 
 export default function Chatbot() {
-  const { messages, input, setInput, allowInput, submit, choose, summary } = useFsm(FLOW, "askPhoneNum");
+  //const { messages, input, setInput, allowInput, submit, choose, summary } = useFsm(FLOW, "askPhoneNum");
+  const { messages, input, setInput, allowInput, submit, choose, summary } = useFsm(FLOW, "testSelectBranch");
+  // starting state is "testSelectBranch" for branch selection demo
+
 
   return (
     <div className="w-full max-w-[1000px] mx-auto rounded-[28px] border shadow-sm bg-white overflow-hidden">

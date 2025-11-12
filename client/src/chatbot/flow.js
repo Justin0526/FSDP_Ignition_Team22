@@ -200,4 +200,38 @@ export const FLOW = {
     input: "none",
     next: null,
   },
+
+  // branch selection demo
+  testSelectBranch: {
+    bot: "You have selected the physical consult option. Please select the branch you would like to visit in the next 7 days:",
+    input: "none",  // We want to show options, not free text
+    asyncBeforeNext: async (ctx, push) => {
+      const branches = [
+        { label: "Bishan", value: "Bishan" },
+        { label: "Pasir Ris", value: "Pasir Ris" },
+        { label: "Tampines", value: "Tampines" },
+      ];
+      push?.("bot_options", branches);
+    },
+    next: null, // Wait for user pick
+    onChoose: (opt, ctx) => {
+      ctx.branch = opt.value;
+    },
+    nextAfterChoose: "confirmBranch", // After selection
+  },
+
+  confirmBranch: {
+  bot: null, // set dynamically
+  input: "none",
+  asyncBeforeNext: async (ctx, push) => {
+    const qrValue = `Branch: ${ctx.branch}`;
+    //Push the confirmation message first
+    push?.("bot", `You have selected the ${ctx.branch} OCBC branch. 
+      Here is your QR code for your visit that can be scanned at the ${ctx.branch} OCBC Branch in the next 7 days for a consult.`);
+    // Then push QR Code
+    push?.("bot", { text: "", qrvalue: qrValue });  },
+  next: null
+},
+
+
 };

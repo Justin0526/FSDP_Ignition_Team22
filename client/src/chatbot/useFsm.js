@@ -16,18 +16,24 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
   const runningRef = useRef(false);     // prevent re-entrant auto-runs
 
   // Push a chat message
-  const push = (from, payload) => {
-    if (!payload) return;
-    // special channel for options
-    if (from === "bot_options") {
-        setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
-    } else if (from === "bot_summary"){
-        setMessages((m) => [...m, { from: "bot", type: "summary", data: payload }]);
-    } 
-    else {
-        setMessages((m) => [...m, { from, text: payload }]);
-    }  
-  };
+  const push = (from, payload, meta) => {
+  if (!payload) return;
+  // special channel for options
+  if (from === "bot_options") {
+    setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
+  } else if (from === "bot_summary"){
+    setMessages((m) => [...m, { from: "bot", type: "summary", data: payload }]);
+  } else {
+    // If payload is an object, merge its properties (for \ntext, qrvalue, etc.)
+    if (typeof payload === "object" && payload !== null) {
+      setMessages((m) => [...m, { from, ...payload }]);
+    } else {
+      // Else, store as usual string with any extra meta
+      setMessages((m) => [...m, { from, text: payload, ...(meta || {}) }]);
+    }
+  }
+};
+
 
   const textOf = (s) => (typeof s?.bot === "function" ? s.bot(ctx) : s?.bot);
 
