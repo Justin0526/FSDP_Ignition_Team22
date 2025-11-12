@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
+import SummaryCard from "./SummaryCard";
 
 function getCurrentDate() {
   return new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" });
@@ -54,6 +55,18 @@ export default function MessageList({ messages = [], onChoose }) {
           return (
             <div key={i} className="flex justify-start">
               <Options options={m.options} onChoose={onChoose} />
+            </div>
+          );
+        }
+        else if (m.type === "summary"){
+           return (
+            <div key={i} className="flex justify-start">
+              <SummaryCard
+                data={m.data}
+                onConfirm={() => onSummary?.("confirm")}
+                onEdit={() => onSummary?.("edit")}
+                onCancel={() => onSummary?.("cancel")}
+              />
             </div>
           );
         }

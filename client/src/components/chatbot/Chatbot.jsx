@@ -1,11 +1,11 @@
 "use client";
-import { useFsm } from "../../chatbot/useFsm";  // ✅ your actual hook path/name
-import { FLOW } from "../../chatbot/flow";      // ✅ your flow path
+import { useFsm } from "../../chatbot/useFsm";  // hook path/name
+import { FLOW } from "../../chatbot/flow";      //flow path
 import MessageList from "./MessageList";
 import InputBar from "./InputBar";
 
 export default function Chatbot() {
-  const { messages, input, setInput, allowInput, submit, choose } = useFsm(FLOW, "askName");
+  const { messages, input, setInput, allowInput, submit, choose, summary } = useFsm(FLOW, "askPhoneNum");
 
   return (
     <div className="w-full max-w-[1000px] mx-auto rounded-[28px] border shadow-sm bg-white overflow-hidden">
@@ -16,7 +16,7 @@ export default function Chatbot() {
       </header>
 
       <div className="p-3">
-        <MessageList messages={messages} onChoose={choose} />
+        <MessageList messages={messages} onChoose={choose} onSummary={summary} />
         <InputBar
           value={input}
           onChange={setInput}

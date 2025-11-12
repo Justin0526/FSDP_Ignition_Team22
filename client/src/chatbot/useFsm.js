@@ -1,20 +1,11 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FLOW as DEFAULT_FLOW } from "./flow";
+import { createCtx } from "./context";
 
-export function useFsm(FLOW = DEFAULT_FLOW, initial = "askName") {
+export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
   // Temporary conversation context (only persisted after confirm/submit)
-  const [ctx] = useState(() => ({
-    name: null,
-    accountRaw: null,
-    accountMasked: null,
-    digitokenApproved: false,
-    // category/subcategory (when using DB-driven options)
-    categoryId: null,
-    categoryName: null,
-    subcategoryId: null,
-    subcategoryName: null,
-  }));
+  const [ctx] = useState(() => createCtx())
 
   const [step, setStep] = useState(initial);
   const current = useMemo(() => FLOW?.[step] ?? null, [FLOW, step]);
@@ -29,10 +20,13 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askName") {
     if (!payload) return;
     // special channel for options
     if (from === "bot_options") {
-      setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
-    } else {
-      setMessages((m) => [...m, { from, text: payload }]);
-    }
+        setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
+    } else if (from === "bot_summary"){
+        setMessages((m) => [...m, { from: "bot", type: "summary", data: payload }]);
+    } 
+    else {
+        setMessages((m) => [...m, { from, text: payload }]);
+    }  
   };
 
   const textOf = (s) => (typeof s?.bot === "function" ? s.bot(ctx) : s?.bot);
@@ -43,6 +37,7 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askName") {
     bootedRef.current = true;
 
     const s = FLOW?.[initial];
+    console.log(s)
     if (!s) return;
 
     push("bot", textOf(s));
@@ -132,7 +127,7 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askName") {
 
     // save selection
     s.onChoose(option, ctx);
-    
+
     // move forward
     const nextKey = s.nextAfterChoose || s.next;
     if (nextKey) {
@@ -143,8 +138,23 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askName") {
     }
   }
 
+  async function summary(action) {
+    const s = current;
+    if (!s) return;
+    if (s.input !== "none" || !s.onSummary) return;
+
+    push("user", action.charAt(0).toUpperCase() + action.slice(1));
+
+    const nextKey = s.onSummary(action, ctx) || s.nextAfterSummary || s.next;
+    if (nextKey) {
+        setStep(nextKey);
+        const next = FLOW[nextKey];
+        push("bot", typeof next.bot === "function" ? next.bot(ctx) : next.bot);
+    }
+  }
+
 
   const allowInput = current?.input === "text";
 
-  return { messages, input, setInput, allowInput, submit, choose, ctx, step };
+  return { messages, input, setInput, allowInput, submit, choose, ctx, step , summary};
 }
