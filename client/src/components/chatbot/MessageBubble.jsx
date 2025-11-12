@@ -1,4 +1,5 @@
 import { IconSpeaker } from "./Icon";
+import VoiceButton from "./VoiceButton";
 
 // No ml-auto here; alignment is handled by the flex wrapper in MessageList
 export default function MessageBubble({ from, children }) {
@@ -17,9 +18,9 @@ export default function MessageBubble({ from, children }) {
   return (
     <div className={cls}>
       {/* customer icon on left of pink bubble, bot icon on right of grey bubble (like your mock) */}
-      {!isBot && icon}
+      {!isBot && <VoiceButton text={children} />}
       <span className="leading-snug">{children}</span>
-      {isBot && icon}
+      {isBot && <VoiceButton text={children} />}
     </div>
   );
 }
