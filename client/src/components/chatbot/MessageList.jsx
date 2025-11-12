@@ -38,7 +38,7 @@ function Options({ options = [], onChoose }) {
 }
 
 // Main chat message list
-export default function MessageList({ messages = [], onChoose }) {
+export default function MessageList({ messages = [], onChoose, onSummaryAction }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -59,13 +59,12 @@ export default function MessageList({ messages = [], onChoose }) {
           );
         }
         else if (m.type === "summary"){
-           return (
+          return (
             <div key={i} className="flex justify-start">
               <SummaryCard
-                data={m.data}
-                onConfirm={() => onSummary?.("confirm")}
-                onEdit={() => onSummary?.("edit")}
-                onCancel={() => onSummary?.("cancel")}
+                payload={m.payload}
+                onAction={(action) => onSummaryAction?.(action)}
+                loading={m.loading}
               />
             </div>
           );

@@ -1,6 +1,3 @@
-import { maskNumber } from "./mask";
-import { t } from "./utils";
-
 // Category fetcher
 async function loadCategories(){
     const res = await fetch("/api/enquiries", {cache : "no-store"});
@@ -9,9 +6,9 @@ async function loadCategories(){
     return json.data;
 }
 
+
 // Helpers for phone & last-4 formatting
-const normalizeDigits = (v) => String(v).replace(/\D+/g, "");
-const formatLast4 = (last4) => `•••• ${last4}`;
+const formatLast4 = (last4) => `•••• •••• •••• ${last4}`;
 
 // Finite-State Machine definition (happy path)
 // Each step supports:
@@ -54,7 +51,7 @@ export const FLOW = {
     onStore: (v, ctx) => {
       const last4 = String(v).trim();
       ctx.cardLast4 = last4;
-      ctx.accountMasked = formatLast4(last4); // e.g., "•••• 1234"
+      ctx.accountMasked = formatLast4(last4); 
     },
     next: "digitoken",
   },
@@ -73,7 +70,7 @@ export const FLOW = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                phone: ctx.phoneRaw ?? ctx.phonePretty,
+                phone: ctx.phoneRaw,
                 last4: ctx.cardLast4,
                 digitokenApproved: true,
             }),
@@ -81,9 +78,9 @@ export const FLOW = {
         const json = await res.json();
 
         if (!json.ok) {
-            // 👇 user-friendly line from controller
+            //  user-friendly line from controller
             push?.("bot", json.error?.message || "Verification failed. Please try again.");
-            // optional: display hint below or as subtext
+            // Display hint below or as subtext
             if (json.error?.hint) push?.("bot", json.error.hint);
             throw new Error(json.error?.code || "VERIFY_FAILED");
         }
@@ -98,10 +95,9 @@ export const FLOW = {
     next: "chooseCategory",
   },
 
-
   chooseCategory: {
     // You no longer have name; use phone or generic copy:
-    bot: (ctx) => t("Please select the category of enquiry below", ctx),
+    bot: () => "Please select the category of enquiry below:",
     input: "none",
     asyncBeforeNext: async (ctx, push) => {
       const rows = await loadCategories();
@@ -149,17 +145,18 @@ export const FLOW = {
   },
 
   summaryCard: {
-    bot: (ctx) => t("Thank you. Here is a quick summary of your enquiry.", ctx),
+    bot: (ctx) => `Thank you ${ctx.customerName}. Here is a quick summary of your enquiry.`,
     input: "none",
     asyncBeforeNext: async (ctx, push) => {
       // push a summary card message (MessageList should render type: "summary")
-      push?.("bot_summary", {
-        // everything pulled from context
-        phone: ctx.phonePretty ?? ctx.phoneRaw ?? "—",
-        accountMasked: ctx.accountMasked ?? "—",
-        categoryName: ctx.categoryName ?? "—",
-        subcategoryName: ctx.subcategoryName ?? "—",
-      });
+      // inside FLOW.summaryCard.asyncBeforeNext
+        push?.("bot_summary", {
+            customerName: ctx.customerName ?? "—",
+            phone: ctx.phonePretty ?? ctx.phoneRaw ?? "—",
+            accountMasked: ctx.accountMasked ?? "—",
+            categoryName: ctx.categoryName ?? "—",
+            subcategoryName: ctx.subcategoryName ?? "—",
+        });
     },
     // Use onSummary and standard actions "confirm" | "edit" | "cancel"
     onSummary: (action) => {
@@ -174,20 +171,27 @@ export const FLOW = {
   submit: {
     bot: "Submitting your request…",
     input: "none",
-    asyncBeforeNext: async (ctx) => {
-      await fetch("/api/chatbot/submit", {
+    asyncBeforeNext: async (ctx, push) => {
+        const chosenCategoryId = ctx.subcategoryId ?? ctx.categoryId; // use sub if present, else parent
+        const res = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          phone: ctx.phoneRaw,
-          card_last4: ctx.cardLast4,
-          category_id: ctx.categoryId,
-          subcategory_id: ctx.subcategoryId ?? null,
+            customerId: ctx.customerId,
+            categoryId: chosenCategoryId,
+            description: ctx.description ?? "",
         }),
-      });
+        });
+
+        const json = await res.json();
+        if (!res.ok || !json.ok) {
+        push?.("bot", json?.error?.message || "Failed to submit enquiry form. Please try again.");
+        if (json?.error?.hint) push?.("bot", json.error.hint);
+        throw new Error(json?.error?.code || "SUBMIT_FAILED");
+        }
     },
     next: "success",
-  },
+    },
 
   success: {
     bot: () => "Thanks. Your enquiry was sent. We’ll follow up shortly.",

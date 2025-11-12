@@ -5,7 +5,7 @@ import MessageList from "./MessageList";
 import InputBar from "./InputBar";
 
 export default function Chatbot() {
-  const { messages, input, setInput, allowInput, submit, choose, summary } = useFsm(FLOW, "askPhoneNum");
+  const { messages, input, setInput, allowInput, submit, choose, handleSummaryAction } = useFsm(FLOW, "askPhoneNum");
 
   return (
     <div className="w-full max-w-[1000px] mx-auto rounded-[28px] border shadow-sm bg-white overflow-hidden">
@@ -16,7 +16,7 @@ export default function Chatbot() {
       </header>
 
       <div className="p-3">
-        <MessageList messages={messages} onChoose={choose} onSummary={summary} />
+        <MessageList messages={messages} onChoose={choose} onSummaryAction={handleSummaryAction} />
         <InputBar
           value={input}
           onChange={setInput}
