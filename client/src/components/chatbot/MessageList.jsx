@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import MessageBubble from "./MessageBubble";
 import SummaryCard from "./SummaryCard";
+import VoiceButton from "./VoiceButton";
 
 function getCurrentDate() {
   return new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" });
@@ -19,19 +20,22 @@ function Options({ options = [], onChoose }) {
   return (
     <div className="flex flex-col gap-2 w-full max-w-[82%]">
       {options.map((opt, i) => (
-        <button
-          key={i}
-          onClick={() => onChoose(opt)} // pass whole option (id + label)
-          className="
-            w-full text-left border rounded-lg px-3 py-2 
-            bg-white text-black 
-            hover:bg-rose-500 hover:text-white 
-            transition-colors duration-200
-          "
-          title={opt.desc || opt.label}
-        >
-          {opt.label}
-        </button>
+        <div key={i} className="flex items-center gap-0">
+          <button
+            key={i}
+            onClick={() => onChoose(opt)} // pass whole option (id + label)
+            className="
+              w-full text-left border rounded-lg px-3 py-2 
+              bg-white text-black 
+              hover:bg-rose-500 hover:text-white 
+              transition-colors duration-200
+            "
+            title={opt.desc || opt.label}
+          >
+            {opt.label}
+          </button>
+          <VoiceButton text={opt.label} color="black" />
+        </div>
       ))}
     </div>
   );

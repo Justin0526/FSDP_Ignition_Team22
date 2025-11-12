@@ -47,7 +47,7 @@ export default function VoiceButton({ text }) {
         className="ml-2 p-1 rounded hover:bg-gray-200 transition"
         title="Read aloud"
         >
-        {speaking ? <Loader2 className="w-4 h-4 animate-spin" /> : <Volume2 className="w-4 h-4" />}
+        {speaking ? <Loader2 className="w-4 h-4 animate-spin" style={{ color: "black" }}/> : <Volume2 className="w-4 h-4" style={{ color: "black" }}/>}
         </button>
     );
 }

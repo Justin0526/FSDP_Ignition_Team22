@@ -23,9 +23,10 @@ export default function MessageBubble({ from, children, qrvalue }) {
     <div className={cls}>
       <span className="leading-snug">{children}</span>
       {/* Show VoiceButton only for bot messages that have non-empty text */}
-      {isBot && hasText && <VoiceButton text={children} />}
-      {/* QR code: ONLY when bot and qrvalue exists */}
-      {isBot && qrvalue && (
+      {hasText && <VoiceButton text={children} />} {/* add isBot && for when only bot has TTS */}
+      {/* QR code: ONLY when bot and qrvalue exists 
+      if in the future user can add images and stuff then it will be plausible to remove isBot from the condition*/}
+      {isBot && qrvalue && ( 
         <div className="mt-2">
           <BranchQRCode value={qrvalue} />
         </div>
