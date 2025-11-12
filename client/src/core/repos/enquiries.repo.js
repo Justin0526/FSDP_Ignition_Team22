@@ -33,12 +33,12 @@ export async function getAllCategories(){
 }
 
 export async function createEnquiry({ customer_id, category_id, description }) {
-  const { data, error } = await supabase
-    .from("enquiries")
-    .insert([{ customer_id, category_id, description }])
-    .select()
-    .single();
+    const { data, error } = await supabase
+      .from("enquiries")
+      .insert([{ customer_id, category_id, description }])
+      .select()
+      .single();
 
-  if (error) throw error; // This bubbles to controller where it’s wrapped
-  return data;
+    if (error) throw error; // This bubbles to controller where it’s wrapped
+    return data;
 }

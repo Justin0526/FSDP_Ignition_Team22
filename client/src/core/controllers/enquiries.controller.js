@@ -33,7 +33,7 @@ export async function createEnquiryController(body) {
 
   try {
     const data = await svc.createEnquiry(customerId, categoryId, description);
-    return { ok: true, data, status: 200 };
+    return { ok: true, data, status: 201 };
   } catch (err) {
     const code = err?.message || "DB_QUERY_FAILED";
     const spec = ERROR_MAP[code] || ERROR_MAP.DB_QUERY_FAILED;

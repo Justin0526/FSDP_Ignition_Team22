@@ -39,8 +39,8 @@ export async function POST(req) {
         : "An unexpected server error occurred.";
 
         return NextResponse.json(
-        { ok: false, error: { code: err.message || "INTERNAL_ERROR", message } },
-        { status: 500 }
+            { ok: false, error: { code: err.message || "INTERNAL_ERROR", message } },
+            { status: 500 }
         );
     }
 }

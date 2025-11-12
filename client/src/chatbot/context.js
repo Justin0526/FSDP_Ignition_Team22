@@ -30,6 +30,10 @@ export function createCtx() {
     name: null,
     customerId: null,
     description: null,
+
+    // Enquiry info
+    enquiryId: null,
+    consultationMode: null,
   };
 }
 
