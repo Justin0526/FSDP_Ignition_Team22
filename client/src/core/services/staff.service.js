@@ -1,5 +1,4 @@
 import * as repo from "@/core/repos/staff.repo";
-// import { cookies } from "next/headers"; 
 
 export async function getStaffById(){
     // Fake the cookie (temporary)

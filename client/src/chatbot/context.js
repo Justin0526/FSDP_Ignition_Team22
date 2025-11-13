@@ -34,6 +34,7 @@ export function createCtx() {
     // Enquiry info
     enquiryId: null,
     consultationMode: null,
+    selfServiceOption: null,
   };
 }
 

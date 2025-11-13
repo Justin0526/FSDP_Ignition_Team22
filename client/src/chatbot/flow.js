@@ -1,3 +1,5 @@
+import { getYoutubeThumbnail } from "@/lib/youtube";
+
 // Category fetcher
 async function loadCategories(){
     const res = await fetch("/api/enquiries", {cache : "no-store"});
@@ -217,9 +219,9 @@ export const FLOW = {
             { label: "PHYSICAL", value: "physical" },
             ]);
         },
-        next: null, // wait for click
-        onChoose: (opt, ctx) => {
-            ctx.consultationMode = opt.value; // "online" | "physical"
+        next: null,
+        onChoose:(opt, ctx) => {
+            ctx.consultationMode= opt.value;
         },
         nextAfterChoose: "saveConsultationMode",
     },
@@ -230,23 +232,122 @@ export const FLOW = {
         input: "none",
         asyncBeforeNext: async (ctx, push) => {
             const res = await fetch("/api/consultation", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                enquiryId: ctx.enquiryId,
-                mode: ctx.consultationMode,
-            }),
-        });
-    
-        const json = await res.json();
-        if (!res.ok || !json.ok) {
-            push?.("bot", json?.error?.message || "Failed to select mode of enquiry. Please try again.");
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    enquiryId: ctx.enquiryId,
+                    mode: ctx.consultationMode,
+                }),
+            });
+
+            const json = await res.json();
+            if (!res.ok || !json.ok) {
+            push?.(
+                "bot",
+                json?.error?.message ??
+                "Failed to select mode of enquiry. Please try again."
+            );
             if (json?.error?.hint) push?.("bot", json.error.hint);
-            throw new Error(json?.error?.code || "MODE_FAILED"); 
-        }
+            throw new Error(json?.error?.code || "MODE_FAILED");
+            }
         },
-        next: null,
-        // engine supports branch per your earlier spec
-        branch: (ctx) => (ctx.consultationMode === "physical" ? "chooseBranch" : "bookOnline"),
+        next: "routeConsultationMode"
     },
+
+    routeConsultationMode:{
+        bot: null,
+        input: "none",
+        next: (ctx) => ctx.consultationMode == "physical" ? "chooseBranch" : "online",
+    },
+
+    online: {
+        bot: null,
+        input: "none",
+        asyncBeforeNext: async (ctx, push) => {
+            push?.("bot", "You have selected the online consult. There are 3 customers ahead.");
+            push?.("bot", "Estimated waiting time: 9-15 minutes")
+            push?.("bot", "In the meantime, we recommend using the self-service option below!");
+            push?.("bot", `You've selected "${ctx.subcategoryName}".\nHere are some common solutions that might help.`)
+        },
+        next: "selfServiceHelp", 
+    },
+
+    selfServiceHelp: {
+        input: "none",
+        asyncBeforeNext: async (ctx, push) => {
+            if (!ctx.categoryId) {
+            push("bot", "I couldn't detect the enquiry category.");
+            return;
+            }
+
+            const res = await fetch(
+            `/api/self_service?categoryId=${encodeURIComponent(ctx.subcategoryId)}`
+            );
+
+            const json = await res.json();
+
+            if (!json.ok) {
+            push("bot", json.error?.message || "Self-service is currently unavailable.");
+            return;
+            }
+
+            const options = (json.data || []);
+
+            if (!options.length) {
+            push("bot", "There are currently no self-service options for this category.");
+            return;
+            }
+
+            // Show as clickable labels (your existing options mechanism)
+            push("bot", "Please choose one of the self-service options:");
+            push("bot_options", options.map((opt) => ({
+            label: opt.title,  // what the user sees on the button
+            value: opt,        // full object so we can use it later
+            })));
+        },
+
+        // when the customer clicks an option button
+        onChoose: (option, ctx) => {
+            const chosen = option?.value || option;
+            ctx.selfServiceOption = chosen; // store selected option in context
+        },
+
+        nextAfterChoose: "selfServiceVideo",
+    },
+
+    selfServiceVideo: {
+        input: "none",
+        asyncBeforeNext: async (ctx, push) => {
+            const opt = ctx.selfServiceOption;
+
+            if (!opt) {
+            push("bot", "Please select a self-service option above.");
+            return;
+            }
+
+            const thumbnailUrl = getYoutubeThumbnail(opt.video_url);
+
+            push( "bot", `You chose "${opt.title}". Here's a short video that might help.`);
+
+            // One specific self-service card for the chosen option
+            push("bot_self_service", {
+            option: {
+                ...opt,
+                thumbnailUrl,
+            },
+            prompt: `Watch short video tutorial (${opt.video_duration_seconds || 37}s)`,
+            question: "Did this help solve your issue?",
+            });
+
+            // no static next: your UI will handle Yes/No and then you can decide where to go
+            // (e.g. ctx.selfServiceHelped = true/false then advance from there)
+        },
+    },
+
+    chooseBranch : {
+        bot: "Choose branch...",
+        input: "text",
+        next: null,
+    }
+    
 };

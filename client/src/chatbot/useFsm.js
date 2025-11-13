@@ -22,7 +22,12 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
       setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
     } else if (from === "bot_summary") {
       setMessages((m) => [...m, { from: "bot", type: "summary", payload }]);
-    } else {
+    } else if (from === "bot_self_service"){
+      setMessages((m) => [
+        ...m, {from: "bot", type: "self_service", ...payload},
+      ]);
+    }
+    else {
       setMessages((m) => [...m, { from, text: payload }]);
     }
   };
