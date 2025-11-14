@@ -22,7 +22,7 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
   if (from === "bot_options") {
     setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
   } else if (from === "bot_summary"){
-    setMessages((m) => [...m, { from: "bot", type: "summary", data: payload }]);
+    setMessages((m) => [...m, { from: "bot", type: "summary", payload }]);
   } else if (from === "bot_self_service"){
       setMessages((m) => [
         ...m, {from: "bot", type: "self_service", ...payload},
@@ -37,7 +37,6 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
     }
   }
 };
-
 
   const textOf = (s) => (typeof s?.bot === "function" ? s.bot(ctx) : s?.bot);
 
@@ -66,13 +65,30 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
           await s.asyncBeforeNext(ctx, push);
         }
 
-        // if step defines a static next, move to it automatically
-        if (s.next) {
-          setStep(s.next);
-          const next = FLOW[s.next];
-          setTimeout(() => push("bot", textOf(next)), 0);
+        // Decide next step:
+        let nextKey = null;
+
+        // 1) If next is a function, call it with ctx
+        if (typeof s.next === "function") {
+          nextKey = s.next(ctx);
         }
-        // else: stay here (waiting for option click or external trigger) 
+        // 2) Else if next is a static string
+        else if (s.next) {
+          nextKey = s.next;
+        }
+        // 3) Else if branch exists (for conditional routing on auto steps)
+        else if (typeof s.branch === "function") {
+          nextKey = s.branch(ctx);
+        }
+
+        if (nextKey) {
+          setStep(nextKey);
+          const next = FLOW[nextKey];
+          if (next) {
+            setTimeout(() => push("bot", textOf(next)), 0);
+          }
+        }
+        // else: stay here (waiting for option click or external trigger)
       } catch (err) {
         if (s.onError) push("bot", s.onError);
       } finally {
