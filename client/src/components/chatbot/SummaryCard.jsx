@@ -1,45 +1,71 @@
-// ReviewCard.jsx
-export default function ReviewCard({ data, onConfirm, onEdit, onCancel }) {
-  const Row = ({ label, value }) => (
-    <div className="flex justify-between gap-4">
-      <span className="text-gray-700 font-medium">{label}</span>
-      <span className="text-gray-900">{value ?? "—"}</span>
-    </div>
-  );
+// src/chatbot/messages/SummaryCardMessage.jsx
+"use client";
+import React from "react";
+
+export default function SummaryCardMessage({ payload, onAction, loading = false }) {
+  const {
+    customerName = "",
+    accountMasked = "",
+    categoryName = "",
+    subcategoryName = "",
+  } = payload || {};
 
   return (
-    <div className="max-w-[82%] bg-gray-100 text-black rounded-2xl p-4 shadow border">
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm text-gray-600">Review your details</span>
-        <button
-          className="text-xs px-2 py-1 rounded bg-white border hover:bg-gray-50"
-          onClick={onEdit}
-          title="Edit"
-        >
-          ✎ Edit
-        </button>
+    <div className="w-full max-w-sm rounded-xl bg-neutral-100 p-4 shadow-sm">
+      {/* Name */}
+      <div className="mb-3">
+        <label className="block text-sm font-semibold text-neutral-700">Name</label>
+        <input
+          readOnly
+          value={customerName}
+          className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
+        />
       </div>
 
-      {/* All values come directly from context */}
-      <div className="space-y-2 text-sm">
-        <Row label="Name" value={data.name} />
-        <Row label="Card Number" value={data.accountMasked} />   {/* ⟵ changed */}
-        <Row label="Category" value={data.categoryName} />
-        <Row label="Subcategory" value={data.subcategoryName} />
-        <Row label="Details provided" value={data.details} />
-        <Row label="Attachment" value={data.attachmentName} />
+      {/* Card Number */}
+      <div className="mb-3">
+        <label className="block text-sm font-semibold text-neutral-700">Card Number</label>
+        <input
+          readOnly
+          value={accountMasked}
+          className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
+        />
       </div>
 
-      <div className="mt-4 space-y-2">
+      {/* Category */}
+      <div className="mb-3">
+        <label className="block text-sm font-semibold text-neutral-700">Category</label>
+        <input
+          readOnly
+          value={categoryName}
+          className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
+        />
+      </div>
+
+      {/* Subcategory */}
+      <div className="mb-5">
+        <label className="block text-sm font-semibold text-neutral-700">Subcategory</label>
+        <input
+          readOnly
+          value={subcategoryName}
+          className="mt-1 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900"
+        />
+      </div>
+
+      {/* Actions */}
+      <div className="space-y-3">
         <button
-          className="w-full rounded-lg py-2 bg-rose-300 text-black hover:bg-rose-400"
-          onClick={onConfirm}
+          type="button"
+          onClick={() => onAction?.("confirm")}
+          disabled={loading}
+          className="w-full rounded-md bg-rose-300 px-4 py-2 text-sm font-semibold text-black shadow active:translate-y-px disabled:opacity-60"
         >
-          Confirm
+          {loading ? "Submitting..." : "Confirm"}
         </button>
         <button
-          className="w-full rounded-lg py-2 bg-red-700 text-white hover:bg-red-800"
-          onClick={onCancel}
+          type="button"
+          onClick={() => onAction?.("cancel")}
+          className="w-full rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow active:translate-y-px"
         >
           Cancel
         </button>

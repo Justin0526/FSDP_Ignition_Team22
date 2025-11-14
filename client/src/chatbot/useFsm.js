@@ -5,15 +5,15 @@ import { createCtx } from "./context";
 
 export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
   // Temporary conversation context (only persisted after confirm/submit)
-  const [ctx] = useState(() => createCtx())
+  const [ctx] = useState(() => createCtx());
 
   const [step, setStep] = useState(initial);
   const current = useMemo(() => FLOW?.[step] ?? null, [FLOW, step]);
 
-  const [messages, setMessages] = useState([]); // [{from,text}|{from:"bot",type:"options",options:[{label,value,desc}]}]
+  const [messages, setMessages] = useState([]); 
   const [input, setInput] = useState("");
-  const bootedRef = useRef(false);      // prevent double initial push
-  const runningRef = useRef(false);     // prevent re-entrant auto-runs
+  const bootedRef = useRef(false);
+  const runningRef = useRef(false);
 
   // Push a chat message
   const push = (from, payload, meta) => {
@@ -23,7 +23,11 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
     setMessages((m) => [...m, { from: "bot", type: "options", options: payload }]);
   } else if (from === "bot_summary"){
     setMessages((m) => [...m, { from: "bot", type: "summary", data: payload }]);
-  } else {
+  } else if (from === "bot_self_service"){
+      setMessages((m) => [
+        ...m, {from: "bot", type: "self_service", ...payload},
+      ]);
+    }else {
     // If payload is an object, merge its properties (for \ntext, qrvalue, etc.)
     if (typeof payload === "object" && payload !== null) {
       setMessages((m) => [...m, { from, ...payload }]);
@@ -43,13 +47,12 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
     bootedRef.current = true;
 
     const s = FLOW?.[initial];
-    console.log(s)
     if (!s) return;
 
     push("bot", textOf(s));
   }, [FLOW, initial]);
 
-  // 2) Auto-run for steps with input: "none" (e.g., Digitoken, option-population)
+  // 2) Auto-run for steps with input: "none"
   useEffect(() => {
     const s = current;
     if (!s || s.input !== "none") return;
@@ -69,7 +72,7 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
           const next = FLOW[s.next];
           setTimeout(() => push("bot", textOf(next)), 0);
         }
-        // else: stay here (waiting for option click or external trigger)
+        // else: stay here (waiting for option click or external trigger) 
       } catch (err) {
         if (s.onError) push("bot", s.onError);
       } finally {
@@ -98,7 +101,6 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
     // store to ctx
     if (typeof s.onStore === "function") s.onStore(v, ctx);
 
-    // optional async hook
     if (typeof s.asyncBeforeNext === "function") {
       try {
         await s.asyncBeforeNext(ctx, push); // pass push so step can print
@@ -127,7 +129,7 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
     if (!s) return;
     if (s.input !== "none" || !s.onChoose) return;
 
-    // show selection
+    // show selection    
     const show = option?.label ?? option?.value ?? String(option);
     push("user", show);
 
@@ -137,30 +139,38 @@ export function useFsm(FLOW = DEFAULT_FLOW, initial = "askPhoneNum") {
     // move forward
     const nextKey = s.nextAfterChoose || s.next;
     if (nextKey) {
-        setStep(nextKey);
-        const next = FLOW[nextKey];
-        const nextText = typeof next.bot === "function" ? next.bot(ctx) : next.bot;
-        push("bot", nextText);
+      setStep(nextKey);
+      const next = FLOW[nextKey];
+      const nextText = typeof next.bot === "function" ? next.bot(ctx) : next.bot;
+      push("bot", nextText);
     }
   }
 
-  async function summary(action) {
-    const s = current;
-    if (!s) return;
-    if (s.input !== "none" || !s.onSummary) return;
-
-    push("user", action.charAt(0).toUpperCase() + action.slice(1));
-
-    const nextKey = s.onSummary(action, ctx) || s.nextAfterSummary || s.next;
-    if (nextKey) {
-        setStep(nextKey);
-        const next = FLOW[nextKey];
-        push("bot", typeof next.bot === "function" ? next.bot(ctx) : next.bot);
-    }
+  // Helper to advance to next step programmatically (used by summary)
+  function advance(nextKey) {
+    if (!nextKey) return;
+    setStep(nextKey);
+    const next = FLOW?.[nextKey];
+    if (next) push("bot", textOf(next));
   }
 
+  // 5) Handle summary actions (confirm / cancel / edit)
+  async function handleSummaryAction(action) {
+    const nextKey = FLOW.summaryCard.onSummary(action);
+    if (nextKey) advance(nextKey);
+  }
 
   const allowInput = current?.input === "text";
 
-  return { messages, input, setInput, allowInput, submit, choose, ctx, step , summary};
+  return {
+    messages,
+    input,
+    setInput,
+    allowInput,
+    submit,
+    choose,
+    ctx,
+    step,
+    handleSummaryAction,
+  };
 }

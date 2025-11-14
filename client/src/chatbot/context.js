@@ -28,6 +28,13 @@ export function createCtx() {
 
     // Legacy (keep if you still use name elsewhere)
     name: null,
+    customerId: null,
+    description: null,
+
+    // Enquiry info
+    enquiryId: null,
+    consultationMode: null,
+    selfServiceOption: null,
   };
 }
 

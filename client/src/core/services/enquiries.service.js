@@ -16,6 +16,20 @@ export async function getAll(){
     return repo.list();
 }
 
+// Get all categories for customer to choose
 export async function getAllCategories(){
     return repo.getAllCategories();
+}
+
+// Create new enquiry 
+export async function createEnquiry(customerId, categoryId, description) {
+    if (!customerId) throw new Error("CUSTOMER_REQUIRED");
+    if (!categoryId) throw new Error("CATEGORY_REQUIRED");
+
+    // Map to the repo’s expected shape
+    return repo.createEnquiry({
+        customer_id: customerId,
+        category_id: categoryId,
+        description: description ?? null,
+    });
 }
