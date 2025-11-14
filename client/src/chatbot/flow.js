@@ -1,4 +1,6 @@
 import { getYoutubeThumbnail } from "@/lib/youtube";
+import { getAllBranches, getBranchById } from '../services/branchAPI';
+
 
 // Category fetcher
 async function loadCategories(){
@@ -208,6 +210,66 @@ export const FLOW = {
         input: "none",
         next: null,
     },
+
+  // branch selection demo
+  testSelectBranch: {
+  bot: "You have selected the physical consult option. Please select the branch you would like to visit in the next 7 days:",
+  input: "none",
+  asyncBeforeNext: async (ctx, push) => {
+    console.log('=== BRANCH SELECTION DEBUG ===');
+    console.log('1. About to call getAllBranches()');
+    
+    // Fetch branches from database
+    const branches = await getAllBranches();
+    
+    console.log('2. Branches received:', branches);
+    console.log('3. Number of branches:', branches?.length);
+    
+    // branches format from API: [{ id, label, desc }, ...]
+    // Convert to your flow format: [{ label, value, desc }, ...]
+    const branchOptions = branches.map(b => ({
+      label: b.label,           // e.g., "Bishan"
+      value: b.id,              // UUID from database
+      desc: b.desc              // Full address
+    }));
+    
+    console.log('4. Branch options after mapping:', branchOptions);
+    console.log('5. About to call push with options');
+    
+    push?.("bot_options", branchOptions);
+    
+    console.log('6. Push called successfully');
+  },
+  next: null,
+  onChoose: (opt, ctx) => {
+    console.log('Branch chosen:', opt);
+    ctx.branchId = opt.value;     // UUID
+    ctx.branchName = opt.label;   // Branch name
+    ctx.branchDesc = opt.desc;    // Full address
+  },
+  nextAfterChoose: "confirmBranch",
+},
+
+
+confirmBranch: {
+  bot: null, // Set dynamically in asyncBeforeNext
+  input: "none",
+  asyncBeforeNext: async (ctx, push) => {
+    const qrValue = `Branch: ${ctx.branchName}`;
+    
+    // Push the confirmation message first
+    push?.(
+      "bot", 
+      `You have selected the ${ctx.branchName} OCBC branch.\nHere is your QR code for your visit that can be scanned at the ${ctx.branchName} OCBC Branch in the next 7 days for a consult.`
+    );
+    
+    // Then push QR Code
+    push?.("bot", { text: "", qrvalue: qrValue });
+  },
+  next: null
+},
+
+
 
     consultation: {
         bot: () =>
