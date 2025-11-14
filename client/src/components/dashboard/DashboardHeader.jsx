@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Stopwatch from "@/components/Stopwatch";
+import Stopwatch from "@/components/dashboard/Stopwatch";
 import Link from "next/link";
 
 export default function DashboardHeader({ activeCustomerId }) {
