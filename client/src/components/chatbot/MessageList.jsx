@@ -24,7 +24,7 @@ function Options({ options = [], onChoose }) {
             key={i}
             onClick={() => onChoose(opt)} // pass whole option (id + label)
             className="
-              w-full text-left border rounded-lg px-3 py-2 
+              w-full text-left border border-[#EF0E0E] rounded-xl px-3 py-2 
               bg-white text-black 
               hover:bg-rose-500 hover:text-white 
               transition-colors duration-200
