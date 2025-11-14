@@ -31,7 +31,7 @@ export default function VoiceButton({ text }) {
 
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = "en-SG";
-        const desiredVoice = voices.find(v => v.lang === "en-SG") || voices[7]; 
+        const desiredVoice = voices.find(v => v.lang === "en-SG") || voices[16]; 
         // 7 = sounds like siri, 11 = proffesional ahh voice, 16 = jap voice, 25< is default male voice
         if (desiredVoice) utter.voice = desiredVoice;
         utter.onstart = () => setSpeaking(true);
