@@ -1,5 +1,5 @@
 // src/app/dashboard/page.js
-import DashboardHeader from "@/components/DashboardHeader";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import SummaryPanelServer from "@/components/SummaryPanelServer";
 // import EnquiriesTable from "@/components/EnquiriesTable";
 
