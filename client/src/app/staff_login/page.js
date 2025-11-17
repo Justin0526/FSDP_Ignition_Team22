@@ -4,24 +4,18 @@ import LoginForm from "@/components/dashboard/LoginForm";
 
 export default function StaffLoginPage() {
     return (
-        <div>
-            <LoginHeader />
-            {/* Main Content Section */}
-            <main className="flex flex-1 flex-row">
-                {/* Login form */}
-                <div className="w-1/2 bg-cover bg-center relative"
-                style={{
-                    backgroundImage: "url('/ocbc-building.jpg')", // replace with your own
-                }}
-                >
-                    <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-r from-transparent to-white"></div>
-                </div>
-
-                {/* Right side: Centered login form */}
-                <div className="w-1/2 flex items-center justify-center bg-white">
-                    <LoginForm />
-                </div>
-            </main>
+        <div className="min-h-screen bg-gray-50">
+        <LoginHeader />
+        
+        <div className="flex items-center justify-center py-12 px-4">
+            <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
+            <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-900">Welcome To OCBC Banking</h2>
+            </div>
+            
+            <LoginForm />
+            </div>
+        </div>
         </div>
     );
 }
