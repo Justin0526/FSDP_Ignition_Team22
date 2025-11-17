@@ -33,7 +33,7 @@ export const FLOW = {
             return digits.length >= 8 && digits.length <= 15;
         },
 
-        onError: "Please enter a phone number with 8–15 digits (spaces/dashes are ok).",
+        onError: "Please enter your 8 digit phone number, text is not alowed.",
 
         onStore: (v, ctx) => {
             const pretty = String(v).trim();              // keep how user typed it
