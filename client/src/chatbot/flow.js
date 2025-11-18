@@ -214,8 +214,8 @@ export const FLOW = {
         input: "none",
         asyncBeforeNext: async (_ctx, push) => {
             push?.("bot_options", [
-            { label: "ONLINE", value: "online" },
-            { label: "PHYSICAL", value: "physical" },
+            { label: "ONLINE (Self Service)", value: "online" },
+            { label: "PHYSICAL (Branch Visit for Staff Assistance)", value: "physical" },
             ]);
         },
         next: null,

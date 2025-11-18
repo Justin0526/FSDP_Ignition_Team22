@@ -1,4 +1,5 @@
 // src/components/chatbot/BranchQRCode.jsx
+"use client";
 import QRCode from "react-qr-code";
 
 export default function BranchQRCode({ value }) {
