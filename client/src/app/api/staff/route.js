@@ -1,39 +1,17 @@
 import { NextResponse } from "next/server";
-// If your file is still under components/, change the import accordingly:
-import { supabase as supabaseServer } from "@/lib/supabaseServer";
+import * as ctrl from "@/core/controllers/staff.controller";
 
+// GET /api/staff?id=xxx
 export async function GET(request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-    const email = searchParams.get("email");
+  let statusCode = 200;
+  let responseData = null;
 
-    let query = supabaseServer.from("staff").select(
-      // adjust fields to your schema
-      "staff_id, full_name, email, role, avatar_url, branch, created_at"
-    );
+  const res = {
+    status: (code) => { statusCode = code; return res; },
+    json: (data) => { responseData = data; return res; }
+  };
 
-    if (id) {
-      query = query.eq("staff_id", id).maybeSingle();
-      const { data, error } = await query;
-      if (error) throw error;
-      return NextResponse.json({ ok: true, data });
-    }
+  await ctrl.getStaffById(request, res);
 
-    if (email) {
-      query = query.eq("email", email).maybeSingle();
-      const { data, error } = await query;
-      if (error) throw error;
-      return NextResponse.json({ ok: true, data });
-    }
-
-    // Fallback: first row (handy during dev)
-    const { data, error } = await query.order("created_at", { ascending: true }).limit(1).maybeSingle();
-    if (error) throw error;
-
-    return NextResponse.json({ ok: true, data });
-  } catch (err) {
-    console.error("[staff API]", err);
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
-  }
+  return NextResponse.json(responseData, { status: statusCode });
 }
