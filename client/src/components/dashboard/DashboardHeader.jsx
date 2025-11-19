@@ -40,9 +40,9 @@ export default function DashboardHeader({ activeCustomerId }) {
 
         {/* Right: Queue info, timer, and profile */}
         <div className="flex items-center space-x-5">
-          {/* Queue badge → now clickable */}
+          {/* Queue badge → clickable */}
           <Link
-            href="/enquiry-queue"
+            href="/dashboard/enquiry-queue"  // 👈 make this absolute
             className="px-3 py-1 border border-gray-400 rounded text-black font-medium hover:bg-gray-100 transition"
             title="View enquiry queue"
           >
