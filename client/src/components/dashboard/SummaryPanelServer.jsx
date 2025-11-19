@@ -1,4 +1,4 @@
-// src/components/SummaryPanelServer.jsx
+// client/src/components/dashboard/SummaryPanelServer.jsx
 import "server-only";
 import React from "react";
 import Image from "next/image";
@@ -6,7 +6,6 @@ import { supabase as supabaseServer } from "@/lib/supabaseServer";
 import ViewEnquiryHistoryButton from "./ViewEnquiryHistoryButton";
 
 async function loadSummary(enquiryId) {
-  // enquiries joined to customers
   const select =
     `enquiry_id, description, urgency, status, customer_id, category_id,
      customer:customers(
@@ -26,7 +25,6 @@ async function loadSummary(enquiryId) {
   if (enquiryId) {
     q = q.eq("enquiry_id", enquiryId).maybeSingle();
   } else {
-    // take the earliest enquiry (or any if created_at missing)
     q = q.order("created_at", { ascending: true }).limit(1).maybeSingle();
   }
 
@@ -56,7 +54,9 @@ async function loadSummary(enquiryId) {
 export default async function SummaryPanelServer({ enquiryId }) {
   const { error, enquiry, customer } = await loadSummary(enquiryId);
 
-  const customerId = customer?.customer_id ?? null;
+  // Use enquiry FK as source of truth
+  const customerId = enquiry?.customer_id ?? null;
+  const activeEnquiryId = enquiry?.enquiry_id ?? null;
 
   return (
     <aside className="space-y-4 text-black">
@@ -70,7 +70,7 @@ export default async function SummaryPanelServer({ enquiryId }) {
         </div>
       </div>
 
-      {/* CONTEXT IMAGE (from /public/context.png) */}
+      {/* CONTEXT IMAGE */}
       <div className="rounded-2xl overflow-hidden border border-black">
         <Image
           src="/context.png"
@@ -118,8 +118,10 @@ export default async function SummaryPanelServer({ enquiryId }) {
 
         {/* BUTTONS */}
         <div className="mt-5 space-y-3">
-          {/* This client component opens the DB-driven history popup */}
-          <ViewEnquiryHistoryButton customerId={customerId} />
+          <ViewEnquiryHistoryButton
+            customerId={customerId}
+            activeEnquiryId={activeEnquiryId}
+          />
 
           <button className="w-full rounded-full border border-black px-4 py-2 font-medium hover:bg-gray-100">
             Edit Enquiry Status

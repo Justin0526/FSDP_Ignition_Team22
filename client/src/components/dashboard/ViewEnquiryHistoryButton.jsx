@@ -1,12 +1,14 @@
-// src/components/ViewEnquiryHistoryButton.jsx
+// client/src/components/dashboard/ViewEnquiryHistoryButton.jsx
 "use client";
 
 import { useState } from "react";
 import EnquiryHistoryPopup from "./EnquiryHistoryPopup";
 
-export default function ViewEnquiryHistoryButton({ customerId }) {
+export default function ViewEnquiryHistoryButton({
+  customerId,
+  activeEnquiryId,
+}) {
   const [open, setOpen] = useState(false);
-
   const disabled = !customerId;
 
   return (
@@ -23,12 +25,12 @@ export default function ViewEnquiryHistoryButton({ customerId }) {
         View enquiry history
       </button>
 
-      {/* Only render popup if we have a customer to show history for */}
       {customerId && (
         <EnquiryHistoryPopup
           isOpen={open}
           onClose={() => setOpen(false)}
           customerId={customerId}
+          activeEnquiryId={activeEnquiryId}
         />
       )}
     </>

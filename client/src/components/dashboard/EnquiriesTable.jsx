@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import StatusBadge from "./StatusBadge"; // adjust path if needed
+
 
 export default function EnquiriesTable() {
   const [data, setData] = useState([]);
@@ -72,7 +74,9 @@ export default function EnquiriesTable() {
                   {row.enquiry_categories?.name ?? `ID: ${row.category_id}`}
                 </td>
                 <td className="p-3">{row.description}</td>
-                <td className="p-3 capitalize">{row.status}</td>
+                <td className="p-3">
+                  <StatusBadge status={row.status} />
+                </td>
                 <td className="p-3">{row.source}</td>
                 <td className="p-3">{row.queue_number ?? "-"}</td>
                 <td className="p-3">{row.attachment_url ?? "-"}</td>

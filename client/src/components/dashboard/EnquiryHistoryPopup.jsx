@@ -1,9 +1,14 @@
-// src/components/EnquiryHistoryPopup.jsx
+// client/src/components/dashboard/EnquiryHistoryPopup.jsx
 "use client";
 
 import { useEffect, useState } from "react";
 
-export default function EnquiryHistoryPopup({ isOpen, onClose, customerId }) {
+export default function EnquiryHistoryPopup({
+  isOpen,
+  onClose,
+  customerId,
+  activeEnquiryId,
+}) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,13 +20,17 @@ export default function EnquiryHistoryPopup({ isOpen, onClose, customerId }) {
       try {
         setLoading(true);
         setError(null);
+        setRows([]);
 
         const res = await fetch(
           `/api/enquiry-history?customerId=${encodeURIComponent(customerId)}`
         );
         const json = await res.json();
 
-        if (!json.ok) throw new Error(json.error || "Failed to load history");
+        if (!json.ok) {
+          throw new Error(json.error || "Failed to load enquiry history");
+        }
+
         setRows(json.data || []);
       } catch (err) {
         setError(err.message);
@@ -34,6 +43,32 @@ export default function EnquiryHistoryPopup({ isOpen, onClose, customerId }) {
   }, [isOpen, customerId]);
 
   if (!isOpen) return null;
+
+  // 1️⃣ Remove the currently active enquiry from the list
+  const nonActiveRows = rows.filter(
+    (r) => r.enquiry_id !== activeEnquiryId && r.enquiry_id != null
+  );
+
+  // 2️⃣ Only keep COMPLETED statuses as "past"
+  const completedStatuses = new Set([
+    "resolved",
+    "closed_unresolved",
+    "cancelled",
+  ]);
+
+  const pastRows = nonActiveRows.filter((r) => {
+    const statusKey = (r.status || "").toLowerCase();
+    return completedStatuses.has(statusKey);
+  });
+
+  // 3️⃣ Decide what to actually display:
+  //    - If we found past (completed) enquiries → show those
+  //    - If not, but there ARE other enquiries → show them as "previous, not completed"
+  //    - If nothing at all → show "No enquiries"
+  const rowsToDisplay =
+    pastRows.length > 0 ? pastRows : nonActiveRows;
+
+  const showingOnlyCompleted = pastRows.length > 0;
 
   return (
     <div
@@ -52,15 +87,27 @@ export default function EnquiryHistoryPopup({ isOpen, onClose, customerId }) {
           ✕
         </button>
 
-        <h2 className="text-2xl font-bold mb-4 text-gray-900 underline">
+        <h2 className="text-2xl font-bold mb-2 underline text-black">
           Enquiry History
         </h2>
 
         {loading && (
-          <div className="text-sm text-gray-700 mb-3">Loading…</div>
+          <div className="mb-3 text-sm text-gray-700">Loading…</div>
         )}
         {error && (
-          <div className="text-sm text-red-600 mb-3">Error: {error}</div>
+          <div className="mb-3 text-sm text-red-600">Error: {error}</div>
+        )}
+
+        {/* Small hint so you know what's happening */}
+        {!loading && !error && rows.length > 0 && (
+          <p className="mb-3 text-xs text-gray-600">
+            Found {rows.length} enquiries for this customer.{" "}
+            {showingOnlyCompleted
+              ? `Showing ${pastRows.length} completed (past) enquiries.`
+              : rowsToDisplay.length > 0
+              ? `No completed enquiries found. Showing ${rowsToDisplay.length} previous enquiries instead.`
+              : "No previous enquiries to display."}
+          </p>
         )}
 
         <div className="overflow-x-auto">
@@ -68,38 +115,36 @@ export default function EnquiryHistoryPopup({ isOpen, onClose, customerId }) {
             <thead>
               <tr>
                 <th className="border border-black p-4 text-left text-lg font-bold">
-                  Enquiries
+                  Enquiry Type
                 </th>
                 <th className="border border-black p-4 text-left text-lg font-bold">
-                  Brief Overview
+                  Description
                 </th>
                 <th className="border border-black p-4 text-left text-lg font-bold">
                   Status
                 </th>
               </tr>
             </thead>
-
             <tbody>
-              {rows.length === 0 ? (
+              {rowsToDisplay.length === 0 && !loading ? (
                 <tr>
                   <td
+                    className="border border-black p-4 text-center text-sm text-gray-600"
                     colSpan={3}
-                    className="border border-black p-4 text-center text-sm"
                   >
                     No past enquiries found for this customer.
                   </td>
                 </tr>
               ) : (
-                rows.map((r) => (
+                rowsToDisplay.map((r) => (
                   <tr key={r.enquiry_id}>
-                    {/* I’m using category name as “Enquiries” and description as “Brief Overview” */}
                     <td className="border border-black p-4 font-semibold align-top">
                       {r.category?.name ?? "—"}
                     </td>
                     <td className="border border-black p-4 align-top">
                       {r.description ?? "—"}
                     </td>
-                    <td className="border border-black p-4 font-semibold align-top">
+                    <td className="border border-black p-4 font-semibold align-top capitalize">
                       {r.status ?? "—"}
                     </td>
                   </tr>
