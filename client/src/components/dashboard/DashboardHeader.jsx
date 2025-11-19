@@ -11,7 +11,15 @@ export default function DashboardHeader({ activeCustomerId }) {
   useEffect(() => {
     async function loadStaff() {
       try {
-        const res = await fetch("/api/staff", { cache: "no-store" });
+        // Get staff from localStorage, parse, then get id
+        const staffData = localStorage.getItem("staff");
+        if (!staffData) throw new Error("No staff data in storage");
+        const staffObj = JSON.parse(staffData);
+        const staffId = staffObj.staff_id;
+
+        if (!staffId) throw new Error("No staff ID found");
+
+        const res = await fetch(`/api/staff?id=${staffId}`, { cache: "no-store" });
         const json = await res.json();
 
         if (!json.ok) throw new Error(json.error || "Failed to fetch staff data");

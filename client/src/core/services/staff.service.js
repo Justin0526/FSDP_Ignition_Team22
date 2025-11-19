@@ -1,15 +1,23 @@
 import * as repo from "@/core/repos/staff.repo";
+import bcrypt from "bcryptjs";
 
-export async function getStaffById(){
-    // Fake the cookie (temporary)
-    const fakeSession = "staff_001";
-    
-    // Exract staff ID
-    const staffId = fakeSession.replace("staff_001", "835b0382-bcd4-4e43-8e17-73b78baa4416")
-
+export async function getStaffById(staffId){
     // Fetch staff record
     const staff = await repo.getStaffById(staffId);
-    if(!staff) throw new Error("Mocked staff not found");
+    if(!staff) throw new Error("Staff not found");
 
     return staff;
+}
+
+// Business logic for logging in staff
+export async function loginStaff(email, password) {
+    const staff = await repo.getActiveStaffByEmail(email);
+
+    if (!staff) throw new Error("Invalid email or password");
+    const isPasswordValid = await bcrypt.compare(password, staff.password_hash); // Adjust to your field
+
+    if (!isPasswordValid) throw new Error("Invalid email or password");
+    const { password_hash, ...staffData } = staff;
+
+    return staffData;
 }
