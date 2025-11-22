@@ -11,3 +11,15 @@ export async function getStaffById(staffId){
 
       return data;
 }
+
+// Get active staff by email (for login)
+export async function getActiveStaffByEmail(email) {
+  const { data, error } = await supabase
+    .from("staff")
+    .select("*")
+    .eq("email", email)
+    .eq("is_active", true)
+    .single();
+  if (error) throw error;
+  return data;
+}

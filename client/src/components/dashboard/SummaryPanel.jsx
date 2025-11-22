@@ -1,50 +1,51 @@
-// src/components/SummaryPanelServer.jsx
-import 'server-only';
-import React from "react";
-// Use YOUR service client path (the one that exports `supabase`)
-import { supabase as supabaseServer } from "@/lib/supabaseServer";
-// or: import { supabase as supabaseServer } from "@/components/lib/supabaseServer";
+"use client";
+import { useEffect, useState } from "react";
+import Image from "next/image";
 
-async function loadSummary(enquiryId) {
-  // Join enquiries ↔ customers in one query
-  const select =
-    `enquiry_id, description, urgency, status, customer_id, session_id, category_id,
-     customer:customers(
-       customer_id, full_name, nric_last4, mobile_number, email_address,
-       relationship_type, preferred_language, created_at, updated_at
-     )`;
+/**
+ * <SummaryPanel enquiryId="uuid-optional" />
+ * - If enquiryId provided: loads that enquiry
+ * - Else: loads any single enquiry
+ */
+export default function SummaryPanel({ enquiryId }) {
+  const [enquiry, setEnquiry] = useState(null);
+  const [customer, setCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
 
-  let q = supabaseServer.from("enquiries").select(select);
+  useEffect(() => {
+    (async () => {
+      try {
+        const url = enquiryId
+          ? `/api/dashboard/summary?id=${encodeURIComponent(enquiryId)}`
+          : `/api/dashboard/summary`;
+        const res = await fetch(url, { cache: "no-store" });
 
-  if (enquiryId) {
-    q = q.eq("enquiry_id", enquiryId).maybeSingle();
-  } else {
-    q = q.limit(1).maybeSingle();
-  }
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) {
+          const text = await res.text();
+          throw new Error(`Non-JSON response: ${text.slice(0, 120)}…`);
+        }
 
-  const { data, error } = await q;
-  if (error) {
-    return { error: error.message, enquiry: null, customer: null };
-  }
-  if (!data) return { error: null, enquiry: null, customer: null };
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error || "Failed to load");
 
-  return {
-    error: null,
-    enquiry: {
-      enquiry_id: data.enquiry_id,
-      description: data.description,
-      urgency: data.urgency,
-      status: data.status,
-      customer_id: data.customer_id,
-      session_id: data.session_id,
-      category_id: data.category_id,
-    },
-    customer: data.customer ?? null,
-  };
-}
-
-export default async function SummaryPanelServer({ enquiryId }) {
-  const { error, enquiry, customer } = await loadSummary(enquiryId);
+        const data = json.data;
+        if (!data) {
+          setEnquiry(null);
+          setCustomer(null);
+        } else {
+          // Normalized shape from API: { enquiry, customer }
+          setEnquiry(data.enquiry ?? null);
+          setCustomer(data.customer ?? null);
+        }
+      } catch (e) {
+        setErr(e.message);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [enquiryId]);
 
   return (
     <aside className="space-y-4">
@@ -52,12 +53,13 @@ export default async function SummaryPanelServer({ enquiryId }) {
       <div className="rounded-2xl bg-white border p-4">
         <h2 className="text-lg font-semibold mb-2 text-black">Summary</h2>
         <div className="rounded-xl border bg-gray-50 p-3 text-sm text-black min-h-[64px]">
-          {error
-            ? `Error: ${error}`
-            : enquiry?.description || "—"}
+          {loading
+            ? "Loading…"
+            : err
+              ? `Error: ${err}`
+              : enquiry?.description || "—"}
         </div>
-
-        {!!enquiry && (
+        {!loading && !err && enquiry && (
           <div className="mt-2 flex flex-wrap gap-2">
             {enquiry.urgency && (
               <span className="text-xs rounded-full border px-2 py-0.5 bg-white">
@@ -75,10 +77,13 @@ export default async function SummaryPanelServer({ enquiryId }) {
 
       {/* Context image */}
       <div className="rounded-2xl overflow-hidden border">
-        <img
-          src="/default/placeholder.jpg"
+        <Image
+          src="/context.png"
           alt="Context"
+          width={400}
+          height={160}
           className="w-full h-32 object-cover"
+          priority
         />
       </div>
 
@@ -86,17 +91,18 @@ export default async function SummaryPanelServer({ enquiryId }) {
       <div className="rounded-2xl bg-white border p-4 text-black">
         <h3 className="text-lg font-semibold mb-3">Customer Info</h3>
 
-        {!customer ? (
-          <div className="text-sm text-gray-600">
-            {error ? `Error: ${error}` : "No customer found."}
-          </div>
+        {loading ? (
+          <div className="text-sm text-gray-600">Loading…</div>
+        ) : err ? (
+          <div className="text-sm text-red-600">Error: {err}</div>
+        ) : !customer ? (
+          <div className="text-sm text-gray-600">No customer found.</div>
         ) : (
           <div className="space-y-2 text-sm">
             <div className="font-medium">{customer.full_name ?? "—"}</div>
             <div>NRIC (last 4): {customer.nric_last4 ?? "—"}</div>
             <div>Mobile: {customer.mobile_number ?? "—"}</div>
             <div>Email: {customer.email_address ?? "—"}</div>
-
             <div className="flex flex-wrap gap-2 pt-1">
               <span className="inline-flex items-center rounded-full border px-2 py-1 text-xs bg-gray-50">
                 Segment: {customer.relationship_type ?? "—"}
@@ -105,7 +111,6 @@ export default async function SummaryPanelServer({ enquiryId }) {
                 Pref. Lang: {customer.preferred_language ?? "—"}
               </span>
             </div>
-
             <div className="text-xs text-gray-500 pt-1">
               Customer since:{" "}
               {customer.created_at
@@ -116,7 +121,9 @@ export default async function SummaryPanelServer({ enquiryId }) {
         )}
 
         <div className="mt-4 space-y-2">
-          <button className="w-full rounded-full border px-3 py-2 bg-white hover:bg-gray-50">
+          <button 
+            onClick={() => setEnquiryHistoryOpen(true)} 
+            className="w-full rounded-full border px-3 py-2 bg-white hover:bg-gray-50">
             View enquiry history
           </button>
           <button className="w-full rounded-full border px-3 py-2 bg-white hover:bg-gray-50">

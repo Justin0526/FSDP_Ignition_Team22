@@ -1,7 +1,7 @@
 // src/app/dashboard/page.js
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import SummaryPanelServer from "@/components/SummaryPanelServer";
-// import EnquiriesTable from "@/components/EnquiriesTable";
+import SummaryPanelServer from "@/components/dashboard/SummaryPanelServer";
+import ResourcesPanel from "@/components/dashboard/ResourcesPanel";
 
 export default function Dashboard() {
   return (
@@ -15,21 +15,19 @@ export default function Dashboard() {
             <SummaryPanelServer />
           </div>
 
-          {/* MIDDLE + RIGHT with shared background image */}
+          {/* MIDDLE + RIGHT with shared background */}
           <div
             className="col-span-12 md:col-span-9 rounded-2xl bg-cover bg-center bg-no-repeat p-4"
-            style={{ backgroundImage: "url('/dashboard-bg.jpg')" }} // optional image
+            style={{ backgroundImage: "url('/dashboard-bg.jpg')" }}
           >
             <div className="grid md:grid-cols-9 gap-4">
-              {/* CENTER: Tools + Voice-to-text (6 of 9 cols) */}
+              {/* CENTER */}
               <div className="col-span-9 md:col-span-6 space-y-4">
-                {/* Tools card */}
                 <section className="rounded-2xl bg-white/85 backdrop-blur-sm border p-4 shadow-md">
                   <h2 className="text-xl font-bold mb-3 text-gray-900">
                     Tools (AI Recommended &amp; Manual Options)
                   </h2>
 
-                  {/* AI Recommended */}
                   <div className="mb-6">
                     <h3 className="font-semibold mb-3 text-gray-900">
                       AI Recommended Tools
@@ -60,7 +58,6 @@ export default function Dashboard() {
                     </ul>
                   </div>
 
-                  {/* Other Available */}
                   <div className="mb-2">
                     <h3 className="font-semibold mb-3 text-gray-900">
                       Other Available Tools
@@ -81,7 +78,6 @@ export default function Dashboard() {
                   </div>
                 </section>
 
-                {/* Voice-to-text Note taking */}
                 <section className="rounded-2xl bg-white/85 backdrop-blur-sm border p-4 shadow-md">
                   <div className="font-semibold text-gray-900 mb-2">
                     Voice to text Note taking
@@ -97,45 +93,14 @@ export default function Dashboard() {
                     shortly.
                   </p>
                 </section>
-
-                {/* Optional: show the enquiries table beneath */}
-                {/* <EnquiriesTable /> */}
               </div>
 
-              {/* RIGHT: Resources / Guideline / Mini OCBC AI (3 of 9 cols) */}
+              {/* RIGHT */}
               <div className="col-span-9 md:col-span-3 space-y-4">
-                {/* Resources */}
-                <section className="rounded-2xl bg-white/85 backdrop-blur-sm border p-4 shadow-md">
-                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
-                    Resources
-                  </h3>
-                  <ul className="space-y-3 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5">▶️</span>
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          Tutorial: Helping customers freeze their card
-                        </div>
-                        <div className="text-gray-700">
-                          Short internal video guide
-                        </div>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-0.5">📰</span>
-                      <div>
-                        <div className="font-medium text-gray-900">
-                          Banking Help Article: Freezing bank card
-                        </div>
-                        <div className="text-gray-700">
-                          Knowledge base reference
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
-                </section>
+                {/* Resources with popup */}
+                <ResourcesPanel />
 
-                {/* Guideline Questions */}
+                {/* Guideline Questions (unchanged) */}
                 <section className="rounded-2xl bg-white/85 backdrop-blur-sm border p-4 shadow-md">
                   <h3 className="text-lg font-semibold mb-3 text-gray-900">
                     Guideline Questions
@@ -146,7 +111,7 @@ export default function Dashboard() {
                   </ul>
                 </section>
 
-                {/* Mini OCBC AI Widget */}
+                {/* Mini OCBC AI widget (unchanged) */}
                 <section className="rounded-2xl bg-white/85 backdrop-blur-sm border p-4 shadow-md">
                   <div className="flex items-center gap-2">
                     <img
