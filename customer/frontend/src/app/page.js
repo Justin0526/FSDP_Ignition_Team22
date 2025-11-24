@@ -9,6 +9,7 @@ import ChatBubble from "../components/ChatBubble.jsx";
 import CategoryButtons from "@/components/CategoryButtons.jsx";
 import InputBar from "@/components/InputBar.jsx";
 import EnquirySummary from "@/components/EnquirySummary.jsx";
+import PostSubmissionOptions from "@/components/PostSubmissionOptions.jsx";
 
 import * as validator from "../utils/validators.js";
 
@@ -21,6 +22,7 @@ const STEP_OTP = "otp";
 const STEP_CATEGORIES = "categories";
 const STEP_SUBCATEGORIES = "subcategories";
 const STEP_SUMMARY = "summary";
+const STEP_POST_SUBMISSION = "post submission";
 
 export default function HomePage(){
     const [sessionId, setSessionId] = useState(null);
@@ -151,7 +153,7 @@ export default function HomePage(){
             setError(err.message || "Failed to submit enquiry.");
         }finally{
             setIsSubmitting(false);
-            setStep(STEP_WAITING);
+            setStep(STEP_POST_SUBMISSION);
         }
     }
 
@@ -298,9 +300,13 @@ export default function HomePage(){
                             selectedCategory={selectedCategory} selectedSubcategory={selectedSubcategory} details={summaryDetails}
                             onChangeCategory={setSelectedCategory} onChangeSubcategory={setSelectedSubcategory} onChangeDetails={setSummaryDetails}
                             onConfirm={handleConfirmEnquiry} isSubmitting={isSubmitting}
-                        />
-                            
+                        />  
                     )}
+
+                    {step === STEP_POST_SUBMISSION && (
+                        <PostSubmissionOptions/>
+                    )}
+                    
                 </section>
 
                 {/* Input bar */}
