@@ -29,10 +29,25 @@ export async function getSubcategoriesByParentId(parentId){
         .order("sort_order", {ascending: true});
 
     if (error || !data){
-        console.error("]getSubcategoriesByParentId] error: ", error);
+        console.error("[getSubcategoriesByParentId] error: ", error);
         throw new AppError("Failed to load subcategories", 500);
     }
 
     return data;
 }
 
+// Get category by categoryId
+export async function getCategoryByCategoryId(categoryId){
+    const { data, error } = await supabase
+        .from("enquiry_categories")
+        .select("*")
+        .eq("category_id", categoryId)
+        .single();
+
+    if(error || !data){
+        console.error("[getCategoryByCategoryId] error: ", error);
+        throw new AppError("Failed to fetch category", 500);
+    }
+
+    return data;
+}

@@ -26,3 +26,17 @@ export async function handleGetSubcategories(req, res, next){
         next(err);
     }
 }
+
+// Get api/categories/:categoryId
+export async function handleGetCategoryByCategoryId(req, res, next){
+    try{
+        const { categoryId } = req.params;
+        const category = await svc.getCategoryByCategoryId(categoryId);
+        res.json({
+            success: true,
+            category,
+        });
+    }catch(err){
+        next(err);
+    }
+}
