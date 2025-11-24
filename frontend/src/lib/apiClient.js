@@ -6,10 +6,18 @@ if(!BASE_URL){
     console.warn("Backend url is not set");
 }
 
+let CURRENT_SESSION_ID = null;
+export function setApiSessionId(sessionId){
+    CURRENT_SESSION_ID = sessionId;
+}
+
 // Generic Get helper
 export async function getJson(path){
     const res = await fetch(`${BASE_URL}${path}`, {
         method: "GET",
+        headers: {
+            "x-session-id": CURRENT_SESSION_ID ?? ""
+        }
     })
 
     const data = await res.json().catch(() => ({}));
@@ -27,7 +35,8 @@ export async function postJson(path, body){
     const res = await fetch(`${BASE_URL}${path}`, {
         method: "POST",
         headers: {
-            "Content-Type" : "application/json"
+            "Content-Type" : "application/json",
+            "x-session-id" : CURRENT_SESSION_ID ?? ""
         },
         body: JSON.stringify(body),
     });

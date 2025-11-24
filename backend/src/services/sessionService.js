@@ -124,7 +124,7 @@ async function validateOtpCode(otp, otpCode){
             })
             .eq("otp_id", otp.otp_id);
 
-        throw new ApppError("OTP incorrect", 401);
+        throw new AppError("OTP incorrect", 401);
     }
 }
 

@@ -18,7 +18,8 @@ export async function handleStartSession(req, res, next){
 // User enters phone number
 export async function handleSubmitPhone(req, res, next){
     try{
-        const { sessionId, mobileNumber } = req.body;
+        const sessionId = req.headers["x-session-id"];
+        const { mobileNumber } = req.body;
         const session = await svc.submitPhone(sessionId, mobileNumber);
         res.json({
             success: true,
@@ -32,7 +33,8 @@ export async function handleSubmitPhone(req, res, next){
 // User enters NRIC last 4
 export async function handleSubmitNric(req, res, next){
     try{
-        const { sessionId, nricLast4 } = req.body;
+        const sessionId = req.headers["x-session-id"];
+        const { nricLast4 } = req.body;
         const result = await svc.submitNric(sessionId, nricLast4);
         res.json({
             success: true,
@@ -47,7 +49,8 @@ export async function handleSubmitNric(req, res, next){
 // User enters OTP
 export async function handleVerifyOtp(req, res, next){
     try{
-        const { sessionId, otp } = req.body;
+        const sessionId = req.headers["x-session-id"];
+        const { otp } = req.body;
         const session = await svc.verifyOtp(sessionId, otp);
         res.json({
             success: true,

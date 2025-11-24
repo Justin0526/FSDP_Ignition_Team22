@@ -4,6 +4,7 @@ import cors from "cors";
 // ---- Routes ----
 import sessionRoutes from "./routes/sessionRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
 
 // ---- Middleware ----
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -23,6 +24,9 @@ app.use("/api/session", sessionRoutes);
 
 // Category browsing
 app.use("/api/categories", categoryRoutes);
+
+// Chat
+app.use("/api/chat", chatRoutes);
 
 // Global error handler MUST be last
 app.use(errorHandler);
