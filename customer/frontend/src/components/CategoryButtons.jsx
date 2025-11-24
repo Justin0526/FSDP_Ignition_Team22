@@ -2,7 +2,7 @@
 
 import ChatBubble from "./ChatBubble.jsx";
 
-export default function CategoryButtons({categories, onSelect}){
+export default function CategoryButtons({categories, onSelect, showTitle = true}){
     if(!categories || categories.length === 0){
         return (
             <div className="mt-2 text-xs text-black">
@@ -13,10 +13,13 @@ export default function CategoryButtons({categories, onSelect}){
 
     return (
         <div className="mt-3">
-            <ChatBubble 
-                sender="bot"
-                text="Please select the category of enquiry below:"
-            />
+            {showTitle && (
+                    <ChatBubble 
+                    sender="bot"
+                    text="Please select the category of enquiry below:"
+                />
+            )}
+            
             <div className="mt-2 flex flex-col gap-2">
                 {categories.map((cat) => (
                     <button 
