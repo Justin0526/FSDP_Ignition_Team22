@@ -10,6 +10,7 @@ import CategoryButtons from "@/components/CategoryButtons.jsx";
 import InputBar from "@/components/InputBar.jsx";
 import EnquirySummary from "@/components/EnquirySummary.jsx";
 import PostSubmissionOptions from "@/components/PostSubmissionOptions.jsx";
+import ConsultationModeOptions from "@/components/ConsultationModeOptions.jsx";
 
 import * as validator from "../utils/validators.js";
 
@@ -22,7 +23,12 @@ const STEP_OTP = "otp";
 const STEP_CATEGORIES = "categories";
 const STEP_SUBCATEGORIES = "subcategories";
 const STEP_SUMMARY = "summary";
-const STEP_POST_SUBMISSION = "post submission";
+const STEP_POST_SUBMISSION_OPTIONS = "post submission";
+const STEP_HISTORY = "history";
+const STEP_SELF_SERVICE = "self_service";
+const STEP_CONSULTATION = "consultation";
+const STEP_ONLINE = "online";
+const STEP_PHYSICAL = "physical";
 
 export default function HomePage(){
     const [sessionId, setSessionId] = useState(null);
@@ -146,14 +152,39 @@ export default function HomePage(){
 
             addMessage(
                 "bot",
-                `Here's what you submitted.\nCategory: ${category.category.display_name}\nSubcategory: ${subcategory.category.display_name}\nDetails:${data?.enquiry?.description || "none"}`
+                `Here's what you submitted.\nCategory: ${category.category.display_name}\nSubcategory: ${subcategory.category.display_name}\nDetails: ${data?.enquiry?.description || "none"}`
             )
         }catch(err){
             console.error(err);
             setError(err.message || "Failed to submit enquiry.");
         }finally{
             setIsSubmitting(false);
-            setStep(STEP_POST_SUBMISSION);
+            setStep(STEP_POST_SUBMISSION_OPTIONS);
+       }
+    }
+
+    function handlePostOptionSelect(choice){
+        if(choice == "enquiry_history"){
+            addMessage("user", "Enquiry History");
+            addMessage("bot", "Here are your recent enquiries (demo content for now. Change in the function handlePostOptionSelect(choice)).");
+            setStep(STEP_HISTORY);
+        } else if (choice == "self_service"){
+            addMessage("user", "Self-Service");
+            addMessage("bot", "Here are some self-service options we can offer (coming soon).");
+            setStep(STEP_SELF_SERVICE);
+        } else if (choice == "consultation"){
+            addMessage("user", "Consultation");
+            setStep(STEP_CONSULTATION);
+        }
+    }
+
+    function handleConsultationModeSelect(choice){
+        if(choice == "online"){
+            addMessage("user", "Online");
+            setStep(STEP_ONLINE);
+        }else if(choice == "physical"){
+            addMessage("user", "Physical");
+            setStep(STEP_PHYSICAL);
         }
     }
 
@@ -182,7 +213,7 @@ export default function HomePage(){
                         mobileNumber: trimmed,
                     });
 
-                    addMessage("bot", "Please enter the last 4 digits of your NRIC: ");
+                    addMessage("bot", "Please enter the last 4 digits of your card: ");
                     setStep(STEP_NRIC);
                     }
 
@@ -303,8 +334,12 @@ export default function HomePage(){
                         />  
                     )}
 
-                    {step === STEP_POST_SUBMISSION && (
-                        <PostSubmissionOptions/>
+                    {step === STEP_POST_SUBMISSION_OPTIONS && (
+                      <PostSubmissionOptions onSelect={handlePostOptionSelect}/>
+                    )}
+
+                    {step === STEP_CONSULTATION && (
+                        <ConsultationModeOptions onSelect={handleConsultationModeSelect}/>
                     )}
                     
                 </section>
