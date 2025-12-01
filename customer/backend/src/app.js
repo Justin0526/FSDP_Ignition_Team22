@@ -6,6 +6,7 @@ import sessionRoutes from "./routes/sessionRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoute.js";
+import selfServiceRoutes from "./routes/selfServiceRoutes.js";
 
 // ---- Middleware ----
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -31,6 +32,9 @@ app.use("/api/chat", chatRoutes);
 
 // Enquiry Route
 app.use("/api/enquiries", enquiryRoutes);
+
+// Self-service Route
+app.use("/api/selfService", selfServiceRoutes);
 
 // Global error handler MUST be last
 app.use(errorHandler);
