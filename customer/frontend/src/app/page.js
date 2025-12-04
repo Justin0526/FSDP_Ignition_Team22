@@ -11,6 +11,7 @@ import InputBar from "@/components/InputBar.jsx";
 import EnquirySummary from "@/components/EnquirySummary.jsx";
 import PostSubmissionOptions from "@/components/PostSubmissionOptions.jsx";
 import ConsultationModeOptions from "@/components/ConsultationModeOptions.jsx";
+import SelfServicePanel from "@/components/SelfServicePanel.jsx";
 
 import * as validator from "../utils/validators.js";
 
@@ -149,12 +150,14 @@ export default function HomePage(){
 
             const category = await getCategoryByCategoryId(data.enquiry.category_id);
             const subcategory = await getCategoryByCategoryId(data.enquiry.subcategory_id);
-            console.log(data);
 
             addMessage(
                 "bot",
                 `Here's what you submitted.\nCategory: ${category.category.display_name}\nSubcategory: ${subcategory.category.display_name}\nDetails: ${data?.enquiry?.details || "none"}`
             )
+
+            setSelectedCategory(category.category);
+            setSelectedSubcategory(subcategory.category);
         }catch(err){
             console.error(err);
             setError(err.message || "Failed to submit enquiry.");
@@ -171,7 +174,7 @@ export default function HomePage(){
             setStep(STEP_HISTORY);
         } else if (choice == "self_service"){
             addMessage("user", "Self-Service");
-            addMessage("bot", "Here are some self-service options we can offer (coming soon).");
+            addMessage("bot", "Based on your enquiry, here are some self-service options you can try.");
             setStep(STEP_SELF_SERVICE);
         } else if (choice == "consultation"){
             addMessage("user", "Consultation");
@@ -187,6 +190,26 @@ export default function HomePage(){
             addMessage("user", "Physical");
             setStep(STEP_PHYSICAL);
         }
+    }
+
+    function handleSelfServiceHuman(){
+        addMessage("user", "Consult a human service officer");
+        setStep(STEP_CONSULTATION);
+    }
+
+    function handleSelfServiceFeedback(){
+        addMessage("user", "End session and give feedback");
+
+        addMessage("bot", "Feedback page coming soon!");
+        setStep(STEP_WAITING);
+    }
+
+    function handleNewEnquiry(){
+        addMessage("user", "Make a new enquiry");
+        setSelectedCategory(null);
+        setSelectedSubcategory(null);
+        setSummaryDetails("");
+        setStep(STEP_CATEGORIES);
     }
 
     // Share send handler for the Input Bar
@@ -341,6 +364,16 @@ export default function HomePage(){
 
                     {step === STEP_CONSULTATION && (
                         <ConsultationModeOptions onSelect={handleConsultationModeSelect}/>
+                    )}
+
+                    {step === STEP_SELF_SERVICE && (
+                        <SelfServicePanel
+                          categoryId={selectedCategory.category_id}
+                          subcategoryId={selectedSubcategory.category_id}
+                          onSelectHuman={handleSelfServiceHuman}
+                          onSelectFeedback={handleSelfServiceFeedback}
+                          onSelectEnquire={handleNewEnquiry}
+                        />
                     )}
                     
                 </section>
