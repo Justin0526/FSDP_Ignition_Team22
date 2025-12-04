@@ -149,10 +149,11 @@ export default function HomePage(){
 
             const category = await getCategoryByCategoryId(data.enquiry.category_id);
             const subcategory = await getCategoryByCategoryId(data.enquiry.subcategory_id);
+            console.log(data);
 
             addMessage(
                 "bot",
-                `Here's what you submitted.\nCategory: ${category.category.display_name}\nSubcategory: ${subcategory.category.display_name}\nDetails: ${data?.enquiry?.description || "none"}`
+                `Here's what you submitted.\nCategory: ${category.category.display_name}\nSubcategory: ${subcategory.category.display_name}\nDetails: ${data?.enquiry?.details || "none"}`
             )
         }catch(err){
             console.error(err);

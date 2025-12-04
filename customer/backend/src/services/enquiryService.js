@@ -3,7 +3,7 @@ import AppError from "../utils/AppError.js";
 import { getAndValidateActiveSession } from "./sessionService.js";
 
 // Create new enquiry for the current customer
-export async function createEnquiry(sessionId, {categoryId, subcategoryId, description}){
+export async function createEnquiry(sessionId, {categoryId, subcategoryId, details}){
     if(!categoryId){
         throw new AppError("categoryId is required", 400);
     }
@@ -21,7 +21,7 @@ export async function createEnquiry(sessionId, {categoryId, subcategoryId, descr
             customer_id: session.customer_id,
             category_id: categoryId,
             subcategory_id: subcategoryId,
-            description: description || null,
+            details: details || null,
         })
         .select("*")
         .single();
